@@ -12,8 +12,20 @@ class Users extends Controller {
     public function lists(){
         $ordername = input('param.ordername');
         $order = input('param.order');
-        $list = Db::table('user')->limit(1000)->select();
-        $total = count($list);
+        $search = input('param.search');
+        $offset = input('param.offset');
+        $limit = input('param.limit');
+
+        if (!$ordername) {
+            $ordername = 'id';
+            $order = 'desc';
+        }
+        $where = [];
+        if(!empty($search)){
+            $where['name'] = ['like', '%' . $search . '%'];
+        }
+        $list = Db::table('user')->where($where)->limit($offset, $limit)->order($ordername.' '.$order)->select();
+        $total = Db::table('user')->where($where)->count();
         return ['total'=>$total,'rows'=>$list];
     }
 }
